@@ -86,7 +86,7 @@ E6.place(x=150,y=300)
 
 
 def save():
-    name = v_name.get()
+    name = v_name.get() # .get คือการดึงออกมาจาก StringVar
     department = v_department.get()
     machine = v_machine.get()
     problem = v_problem.get()
@@ -122,13 +122,17 @@ def save():
 B= Button(T1, text='บันทึกใบแจ้งซ่อม',command=save)
 B.place(x=200,y=350)
 
-################TAB2########################
+################ TAB2 ########################
 header = ['TSID','ชื่อ','แผนก','อุปกรณ์','อาการเสีย','หมายเลข','เบอร์โทรผู้แจ้ง']
-headerw = [50,100,100,150,200,100,100]
+headerw = [100,150,150,200,250,150,150]
 
-mtworkorderlist = ttk.Treeview(T2,columns=header,show='headings',height=10)
+mtworkorderlist = ttk.Treeview(T2,columns=header,show='headings',height=20)
 mtworkorderlist.pack()
 
+#ปรับขนาดฟอนด์และตารางให้ใหญ่ขึ้น
+style = ttk.Style()
+style.configure('Treeview.Heading',font=('Angsana New',20,'bold'))
+style.configure('Treeview',rowheight=25,font=('Angsana New',15))
 
 for h,w in zip(header,headerw):
     mtworkorderlist.heading(h,text=h)
@@ -147,7 +151,134 @@ def update_table():
         del d[0] # ลบ ID ออกจาก database
         mtworkorderlist.insert('','end',values=d)
 
-######startupdate##############
+## หนเ้าแก้ไข
+
+def EditPage_mtworkorder(event=None):
+    select = mtworkorderlist.selection()
+    output = mtworkorderlist.item(select)
+    op = output['values']
+
+    tsid = op[0]
+    t_name = op[1]
+    t_department  = op[2]
+    t_machine  = op[3]
+    t_problem  = op[4]
+    t_number  = op[5]
+    t_tel  = '0{}'.format(op[6])
+
+
+    GUI2 = Toplevel() 
+    GUI2.title('หน้าแก้ไขข้อมูล')
+    GUI2.geometry('500x500')
+
+
+    L = Label(GUI2,text='ใบแจ้งซ่อม',font=FONT1)
+    L.place(x=80,y=10)
+    #-------------------------------
+    L = Label(GUI2,text='ชื่อผู้แจ้ง',font=FONT2)
+    L.place(x=30,y=50)
+    v_name2 = StringVar()
+    v_name2.set(t_name)
+    E1 = Entry(GUI2,textvariable=v_name2,font=FONT2)
+    E1.place(x=150,y=50)
+
+    #-------------------------------
+    L = Label(GUI2,text='แผนก',font=FONT2)
+    L.place(x=30,y=100)
+    v_department2 = StringVar()
+    v_department2.set(t_department)
+    E2 = Entry(GUI2,textvariable=v_department2,font=FONT2)
+    E2.place(x=150,y=100)
+
+    #-------------------------------
+    L = Label(GUI2,text='อุปกรณ์',font=FONT2)
+    L.place(x=30,y=150)
+    v_machine2 = StringVar()
+    v_machine2.set(t_machine)
+    E3 = Entry(GUI2,textvariable=v_machine2,font=FONT2)
+    E3.place(x=150,y=150)
+
+    #-------------------------------
+    L = Label(GUI2,text='อาการเสีย',font=FONT2)
+    L.place(x=30,y=200)
+    v_problem2 = StringVar()
+    v_problem2.set(t_problem)
+    E4 = Entry(GUI2,textvariable=v_problem2,font=FONT2)
+    E4.place(x=150,y=200)
+
+
+    #-------------------------------
+    L = Label(GUI2,text='หมายเลข',font=FONT2)
+    L.place(x=30,y=250)
+    v_number2 = StringVar()
+    v_number2.set(t_number)
+    E5 = Entry(GUI2,textvariable=v_number2,font=FONT2)
+    E5.place(x=150,y=250)
+
+    #-------------------------------
+    L = Label(GUI2,text='เบอร์โทร',font=FONT2)
+    L.place(x=30,y=300)
+    v_tel2 = StringVar()
+    v_tel2.set(t_tel)
+    E6 = Entry(GUI2,textvariable=v_tel2,font=FONT2)
+    E6.place(x=150,y=300)
+
+
+    def edit_save():
+        name = v_name2.get() # .get คือการดึงออกมาจาก StringVar
+        department = v_department2.get()
+        machine = v_machine2.get()
+        problem = v_problem2.get()
+        number = v_number2.get()
+        tel = v_tel2.get()
+
+   
+
+        update_mtworkorder(tsid,'name',name)
+        update_mtworkorder(tsid,'department',department)
+        update_mtworkorder(tsid,'machine',machine)
+        update_mtworkorder(tsid,'problem',problem)
+        update_mtworkorder(tsid,'number',number)
+        update_mtworkorder(tsid,'tel',tel)
+
+
+
+        update_table()
+        GUI2.destroy()
+
+        
+
+    B= Button(GUI2,text='บันทึกใบแจ้งซ่อม',command=edit_save)
+    B.place(x=200,y=350)
+
+
+
+    GUI2.mainloop()
+
+
+mtworkorderlist.bind('<Double-1>',EditPage_mtworkorder)
+
+def Delete_mtworkorder(event=None):
+    select = mtworkorderlist.selection()
+    output = mtworkorderlist.item(select)
+    tsid = output['values'][0] # get only ts id
+    
+
+    check = messagebox.askyesno('ยื่นยันการลบ','คุณต้องการลบข้อมูลหรือไม่')
+    print(check)
+    
+    if check == True:
+        delete_mtworkorder(tsid)
+        update_table()
+
+
+mtworkorderlist.bind('<Delete>',Delete_mtworkorder)
+
+
+
+
+
+######start update##############
 update_table()
 
 

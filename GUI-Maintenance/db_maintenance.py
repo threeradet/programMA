@@ -34,6 +34,7 @@ def insert_mtworkorder(tsid,name,department,machine,problem,number,tel):
     conn.commit() #save database
 
 
+#insert_mtworkorder('TS1002','ลุง','it','monitor','พัง','PT1992','452')
 
 def view_mtworkorder():
     command = 'SELECT *FROM mt_workorder'
@@ -41,11 +42,14 @@ def view_mtworkorder():
     result = c.fetchall()
     return result
 
+
 def update_mtworkorder(tsid,field,newvalue):
     with conn:
         command = 'UPDATE mt_workorder SET {} = (?) WHERE tsid=(?)'.format(field)
         c.execute(command,(newvalue,tsid))
     conn.commit()
+
+
 
 
 def delete_mtworkorder(tsid):
